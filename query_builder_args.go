@@ -533,9 +533,6 @@ func (f *Fetch) StringArgs(args []any) (string, []any) {
 // - string: The SQL WHEN clause string.
 // - []any: The updated slice of arguments, including value and condition values.
 func (c *WhenCase) StringArgs(args []any) (string, []any) {
-	// Append the value associated with the WHEN clause.
-	args = append(args, c.Value)
-
 	// Process conditions and construct the WHEN clause SQL.
 	if valueConditions, ok := c.Conditions.([]Condition); ok {
 		var cons []string
@@ -546,9 +543,15 @@ func (c *WhenCase) StringArgs(args []any) (string, []any) {
 			cons = append(cons, sqlPart)
 		}
 
+		// Append the value associated with the WHEN clause.
+		args = append(args, c.Value)
+
 		// Construct and return the WHEN clause.
 		return fmt.Sprintf("WHEN %s THEN '?'", strings.Join(cons, " AND ")), args
 	}
+
+	// Append the value associated with the WHEN clause.
+	args = append(args, c.Value)
 
 	// Return the WHEN clause for a single condition.
 	return fmt.Sprintf("WHEN %v THEN '?'", c.Conditions), args

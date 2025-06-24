@@ -4,8 +4,8 @@ mod:
 	go list -m --versions
 
 test:
-	go test -v -timeout 30s -coverprofile=cover.out -cover ./...
-	go tool cover -func=cover.out
+	go test -v -timeout 30s -coverprofile=coverage.txt -cover ./...
+	go tool cover -func=coverage.txt
 
 critic:
 	gocritic check -enableAll -disable=unnamedResult,unlabelStmt,hugeParam,singleCaseSwitch,builtinShadow,typeAssertChain ./...
@@ -18,5 +18,7 @@ vulncheck:
 
 lint:
 	golangci-lint run ./...
+
+check: critic security vulncheck lint
 
 all: critic security vulncheck lint test

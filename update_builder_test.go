@@ -96,3 +96,95 @@ func TestUpdateArgs(t *testing.T) {
 		}
 	}
 }
+
+// TestUpdateWhereOr tests the WhereOr function of UpdateBuilder
+func TestUpdateWhereOr(t *testing.T) {
+	testCases := map[string]*UpdateBuilder{
+		"UPDATE Customers SET ContactName = 'Alfred Schmidt' WHERE CustomerID = 1 OR City = 'Frankfurt' OR Country = 'Germany'": UpdateInstance().
+			Update("Customers").
+			Set("ContactName", "Alfred Schmidt").
+			Where("CustomerID", Eq, 1).
+			WhereOr("City", Eq, "Frankfurt").
+			WhereOr("Country", Eq, "Germany"),
+		"UPDATE Customers SET ContactName = 'Alfred Schmidt' WHERE CustomerID = 1 AND City = 'Frankfurt' OR Country = 'Germany'": UpdateInstance().
+			Update("Customers").
+			Set("ContactName", "Alfred Schmidt").
+			Where("CustomerID", Eq, 1).
+			Where("City", Eq, "Frankfurt").
+			WhereOr("Country", Eq, "Germany"),
+	}
+
+	for expected, query := range testCases {
+		if query.String() != expected {
+			t.Fatalf(`Query %s != %s`, query.String(), expected)
+		}
+	}
+}
+
+// TestUpdateWhereGroup tests the WhereGroup function of UpdateBuilder
+func TestUpdateWhereGroup(t *testing.T) {
+	testCases := map[string]*UpdateBuilder{
+		"UPDATE Employees SET Salary = 5000 WHERE (FirstName = 'John' AND LastName = 'Doe')": UpdateInstance().
+			Update("Employees").
+			Set("Salary", 5000).
+			WhereGroup(func(whereBuilder WhereBuilder) *WhereBuilder {
+				whereBuilder.Where("FirstName", Eq, "John").
+					Where("LastName", Eq, "Doe")
+				return &whereBuilder
+			}),
+		"UPDATE Employees SET Salary = 5000 WHERE Department = 'IT' AND (Experience > 5 OR Certification = 'AWS')": UpdateInstance().
+			Update("Employees").
+			Set("Salary", 5000).
+			Where("Department", Eq, "IT").
+			WhereGroup(func(whereBuilder WhereBuilder) *WhereBuilder {
+				whereBuilder.Where("Experience", Greater, 5).
+					WhereOr("Certification", Eq, "AWS")
+				return &whereBuilder
+			}),
+	}
+
+	for expected, query := range testCases {
+		if query.String() != expected {
+			t.Fatalf(`Query %s != %s`, query.String(), expected)
+		}
+	}
+}
+
+// TestUpdateWhereCondition tests the WhereCondition function of UpdateBuilder
+func TestUpdateWhereCondition(t *testing.T) {
+	condition1 := Condition{
+		Field: "FirstName",
+		Opt:   Eq,
+		Value: "John",
+		AndOr: And,
+	}
+	condition2 := Condition{
+		Field: "LastName",
+		Opt:   Eq,
+		Value: "Doe",
+		AndOr: And,
+	}
+	condition3 := Condition{
+		Field: "Department",
+		Opt:   Eq,
+		Value: "IT",
+		AndOr: Or,
+	}
+
+	testCases := map[string]*UpdateBuilder{
+		"UPDATE Employees SET Salary = 5000 WHERE FirstName = 'John' AND LastName = 'Doe'": UpdateInstance().
+			Update("Employees").
+			Set("Salary", 5000).
+			WhereCondition(condition1, condition2),
+		"UPDATE Employees SET Salary = 5000 WHERE FirstName = 'John' AND LastName = 'Doe' OR Department = 'IT'": UpdateInstance().
+			Update("Employees").
+			Set("Salary", 5000).
+			WhereCondition(condition1, condition2, condition3),
+	}
+
+	for expected, query := range testCases {
+		if query.String() != expected {
+			t.Fatalf(`Query %s != %s`, query.String(), expected)
+		}
+	}
+}

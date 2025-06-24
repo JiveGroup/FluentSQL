@@ -675,3 +675,69 @@ func TestRemoveFetch(t *testing.T) {
 		t.Fatalf(`Query %s != %s`, query.String(), sqlLimit)
 	}
 }
+
+// TestQueryWhereCondition tests the WhereCondition function of QueryBuilder
+func TestQueryWhereCondition(t *testing.T) {
+	condition1 := Condition{
+		Field: "first_name",
+		Opt:   Eq,
+		Value: "John",
+		AndOr: And,
+	}
+	condition2 := Condition{
+		Field: "last_name",
+		Opt:   Eq,
+		Value: "Doe",
+		AndOr: And,
+	}
+	condition3 := Condition{
+		Field: "department",
+		Opt:   Eq,
+		Value: "IT",
+		AndOr: Or,
+	}
+
+	testCases := map[string]*QueryBuilder{
+		"SELECT * FROM employees WHERE first_name = 'John' AND last_name = 'Doe'": QueryInstance().
+			Select("*").
+			From("employees").
+			WhereCondition(condition1, condition2),
+		"SELECT * FROM employees WHERE first_name = 'John' AND last_name = 'Doe' OR department = 'IT'": QueryInstance().
+			Select("*").
+			From("employees").
+			WhereCondition(condition1, condition2, condition3),
+		"SELECT employee_id, first_name, last_name FROM employees WHERE first_name = 'John' AND last_name = 'Doe'": QueryInstance().
+			Select("employee_id", "first_name", "last_name").
+			From("employees").
+			WhereCondition(condition1, condition2),
+	}
+
+	for expected, query := range testCases {
+		if query.String() != expected {
+			t.Fatalf(`Query %s != %s`, query.String(), expected)
+		}
+	}
+
+	// Test with Sql() method
+	testCasesArgs := map[string]*QueryBuilder{
+		"SELECT * FROM employees WHERE first_name = $1 AND last_name = $2": QueryInstance().
+			Select("*").
+			From("employees").
+			WhereCondition(condition1, condition2),
+		"SELECT * FROM employees WHERE first_name = $1 AND last_name = $2 OR department = $3": QueryInstance().
+			Select("*").
+			From("employees").
+			WhereCondition(condition1, condition2, condition3),
+	}
+
+	for expected, query := range testCasesArgs {
+		var sql string
+		var args []any
+
+		sql, args, _ = query.Sql()
+
+		if sql != expected {
+			t.Fatalf(`Query %s != %s (%v)`, sql, expected, args)
+		}
+	}
+}
