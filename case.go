@@ -26,7 +26,7 @@ Simple CASE expression
        WHEN 20 THEN '20 years'
        WHEN 25 THEN '25 years'
        WHEN 30 THEN '30 years'
-   END aniversary
+   END anniversary
 
 Search CASE expression
    CASE

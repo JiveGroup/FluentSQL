@@ -14,7 +14,7 @@ Simple CASE expression
        WHEN 20 THEN '20 years'
        WHEN 25 THEN '25 years'
        WHEN 30 THEN '30 years'
-   END aniversary
+   END anniversary
 */
 func TestCaseSimple(t *testing.T) {
 	caseTest := new(Case)
@@ -28,9 +28,9 @@ func TestCaseSimple(t *testing.T) {
 	caseTest.When(20, "20 years")
 	caseTest.When(25, "25 years")
 	caseTest.When(30, "30 years")
-	caseTest.Name = "aniversary"
+	caseTest.Name = "anniversary"
 
-	expected := "CASE (2000 - YEAR(hire_date)) WHEN 1 THEN '1 year' WHEN 3 THEN '3 years' WHEN 5 THEN '5 years' WHEN 10 THEN '10 years' WHEN 15 THEN '15 years' WHEN 20 THEN '20 years' WHEN 25 THEN '25 years' WHEN 30 THEN '30 years' END aniversary"
+	expected := "CASE (2000 - YEAR(hire_date)) WHEN 1 THEN '1 year' WHEN 3 THEN '3 years' WHEN 5 THEN '5 years' WHEN 10 THEN '10 years' WHEN 15 THEN '15 years' WHEN 20 THEN '20 years' WHEN 25 THEN '25 years' WHEN 30 THEN '30 years' END anniversary"
 
 	if caseTest.String() != expected {
 		t.Fatalf(`Query %s != %s`, caseTest.String(), expected)

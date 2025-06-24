@@ -149,12 +149,12 @@ func TestCaseStringArgs(t *testing.T) {
 	caseTest.Exp = "(2000 - YEAR(hire_date))"
 	caseTest.When(1, "1 year")
 	caseTest.When(3, "3 years")
-	caseTest.Name = "aniversary"
+	caseTest.Name = "anniversary"
 
 	var args []any
 	sql, args := caseTest.StringArgs(args)
 
-	expectedSQL := "CASE (2000 - YEAR(hire_date)) WHEN 1 THEN '?' WHEN 3 THEN '?' END aniversary"
+	expectedSQL := "CASE (2000 - YEAR(hire_date)) WHEN 1 THEN '?' WHEN 3 THEN '?' END anniversary"
 	if sql != expectedSQL {
 		t.Fatalf("Expected SQL %s, got %s", expectedSQL, sql)
 	}
