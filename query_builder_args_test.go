@@ -259,7 +259,7 @@ func TestQueryBuilderStringArgs(t *testing.T) {
 	qb.fromStatement = From{Table: "users"}
 
 	args = []any{}
-	sql, args, err = qb.StringArgs(args)
+	sql, _, err = qb.StringArgs(args)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -308,7 +308,7 @@ func TestSelectStringArgs(t *testing.T) {
 	selectObj = Select{Columns: []any{subQuery}}
 
 	args = []any{}
-	sql, args = selectObj.StringArgs(args)
+	sql, _ = selectObj.StringArgs(args)
 
 	if !strings.Contains(sql, "(SELECT COUNT(*) FROM orders WHERE customer_id = $1)") {
 		t.Fatalf("Expected SQL to contain subquery, got %s", sql)
@@ -323,7 +323,7 @@ func TestSelectStringArgs(t *testing.T) {
 	selectObj = Select{Columns: []any{subQuery}}
 
 	args = []any{}
-	sql, args = selectObj.StringArgs(args)
+	sql, _ = selectObj.StringArgs(args)
 
 	if !strings.Contains(sql, "(SELECT COUNT(*) FROM orders) AS order_count") {
 		t.Fatalf("Expected SQL to contain subquery with alias, got %s", sql)
@@ -340,7 +340,7 @@ func TestFromStringArgs(t *testing.T) {
 	fromObj := From{Table: subQuery}
 
 	var args []any
-	sql, args := fromObj.StringArgs(args)
+	sql, _ := fromObj.StringArgs(args)
 
 	if !strings.Contains(sql, "FROM (SELECT id, name FROM employees)") {
 		t.Fatalf("Expected SQL to contain subquery, got %s", sql)
@@ -355,7 +355,7 @@ func TestFromStringArgs(t *testing.T) {
 	fromObj = From{Table: subQuery}
 
 	args = []any{}
-	sql, args = fromObj.StringArgs(args)
+	sql, _ = fromObj.StringArgs(args)
 
 	if !strings.Contains(sql, "FROM (SELECT id, name FROM employees) AS emp") {
 		t.Fatalf("Expected SQL to contain subquery with alias, got %s", sql)
@@ -372,7 +372,7 @@ func TestJoinStringArgs(t *testing.T) {
 	})
 
 	var args []any
-	sql, args := joinObj.StringArgs(args)
+	sql, _ := joinObj.StringArgs(args)
 
 	if !strings.Contains(sql, "CROSS JOIN departments") {
 		t.Fatalf("Expected SQL to contain CROSS JOIN, got %s", sql)
@@ -387,24 +387,26 @@ func TestJoinStringArgs(t *testing.T) {
 func TestConditionStringArgs(t *testing.T) {
 	// Test with Group conditions (lines 251-266)
 	condition := Condition{}
-	condition.Group = append(condition.Group, Condition{
-		Field: "salary",
-		Opt:   Greater,
-		Value: 5000,
-		AndOr: And,
-	})
-	condition.Group = append(condition.Group, Condition{
-		Field: "department",
-		Opt:   Eq,
-		Value: "IT",
-		AndOr: Or,
-	})
-	condition.Group = append(condition.Group, Condition{
-		Field: "department",
-		Opt:   Eq,
-		Value: "HR",
-		AndOr: And,
-	})
+	condition.Group = append(condition.Group, []Condition{
+		{
+			Field: "salary",
+			Opt:   Greater,
+			Value: 5000,
+			AndOr: And,
+		},
+		{
+			Field: "department",
+			Opt:   Eq,
+			Value: "IT",
+			AndOr: Or,
+		},
+		{
+			Field: "department",
+			Opt:   Eq,
+			Value: "HR",
+			AndOr: And,
+		},
+	}...)
 
 	var args []any
 	sql, args := condition.StringArgs(args)
@@ -433,14 +435,12 @@ func TestHavingStringArgs(t *testing.T) {
 		Opt:   Greater,
 		Value: 5,
 		AndOr: And,
-	})
-	havingObj.Conditions = append(havingObj.Conditions, Condition{
+	}, Condition{
 		Field: "AVG(salary)",
 		Opt:   Greater,
 		Value: 5000,
 		AndOr: Or,
-	})
-	havingObj.Conditions = append(havingObj.Conditions, Condition{
+	}, Condition{
 		Field: "MAX(salary)",
 		Opt:   Greater,
 		Value: 10000,
@@ -452,9 +452,9 @@ func TestHavingStringArgs(t *testing.T) {
 	// TODO checking
 	// Got `HAVING COUNT(*) > $1 OR AVG(salary) > $2 AND MAX(salary) > $3`
 	// Expected `HAVING COUNT(*) > $1 AND AVG(salary) > $2 OR MAX(salary) > $3`
-	//if !strings.Contains(sql, "HAVING COUNT(*) > $1 AND AVG(salary) > $2 OR MAX(salary) > $3") {
+	// if !strings.Contains(sql, "HAVING COUNT(*) > $1 AND AVG(salary) > $2 OR MAX(salary) > $3") {
 	//	t.Fatalf("Expected SQL to contain HAVING with OR conditions, got %s", sql)
-	//}
+	// }
 
 	if len(args) != 3 {
 		t.Fatalf("Expected 3 arguments, got %d", len(args))
