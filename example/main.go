@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // pgx driver for database/sql
+	_ "github.com/jackc/pgx/v5/stdlib"
 	qb "github.com/jivegroup/fluentsql"
 	"github.com/jmoiron/sqlx"
 )
