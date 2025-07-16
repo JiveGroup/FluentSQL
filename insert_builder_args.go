@@ -104,7 +104,7 @@ func (ir *InsertRow) StringArgs(args []any) (string, []any) {
 
 	// Process each value in the row.
 	for _, col := range ir.Values {
-		if colField, ok := col.(ValueField); ok { // Value is of type ValueField.
+		if colField, ok := col.(IValueField); ok { // Value is of type ValueField.
 			rowStr = append(rowStr, colField.String())
 		} else if colString, ok := col.(string); ok { // Value is a string.
 			args = append(args, colString)

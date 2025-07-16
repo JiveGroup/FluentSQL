@@ -116,7 +116,7 @@ func (s *UpdateItem) StringArgs(args []any) (string, []any) {
 		if fieldAnySlice, ok := s.Value.([]any); ok {
 			var values []string
 			for _, fieldAny := range fieldAnySlice {
-				if valueField, ok := fieldAny.(ValueField); ok { // Value is a ValueField.
+				if valueField, ok := fieldAny.(IValueField); ok { // Value is a ValueField.
 					values = append(values, valueField.String())
 				} else if valueString, ok := fieldAny.(string); ok { // Value is a string.
 					args = append(args, valueString)
@@ -148,7 +148,7 @@ func (s *UpdateItem) StringArgs(args []any) (string, []any) {
 	}
 
 	// If the value is a ValueField, format it as-is.
-	if valueField, ok := s.Value.(ValueField); ok {
+	if valueField, ok := s.Value.(IValueField); ok {
 		return fmt.Sprintf("%s = %s", s.Field, valueField), args
 	}
 

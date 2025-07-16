@@ -341,6 +341,29 @@ func (v ValueBetween) String() string {
 //   - String(): Converts the ValueField to its string representation.
 type ValueField string
 
+// IValueField represents a field value interface that can be converted to a string value.
+//
+// The Value() method enables dynamic generation of SQL field values that need custom string formatting.
+// This interface is commonly implemented by custom field types that need to control how they are
+// represented in SQL queries.
+//
+// Example usage:
+//
+//	type CustomField struct {
+//		name string
+//	}
+//
+//	func (f CustomField) String() string {
+//		return fmt.Sprintf("CUSTOM(%s)", f.name)
+//	}
+//
+//	// Can be used in SQL generation
+//	field := CustomField{name: "test"}
+//	sqlValue := field.String() // Returns "CUSTOM(test)"
+type IValueField interface {
+	String() string
+}
+
 // String converts the ValueField to its string representation.
 //
 // Returns:
@@ -350,7 +373,8 @@ type ValueField string
 // ValueField to handle condition `WHERE c.column <WhereOpt> c.column_1`
 //
 //	So, When build condition Where("d.employee_id", qb.Eq, qb.ValueField("e.employee_id")) to keep SQL string as
-//	    d.employee_id = e.employee_id instead of
+//	    d.employee_id = e.employee_id
+//	    instead of
 //	    d.employee_id = 'e.employee_id'
 func (v ValueField) String() string {
 	return string(v)
