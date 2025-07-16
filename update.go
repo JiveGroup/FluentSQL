@@ -50,8 +50,8 @@ func (s *UpdateItem) String() string {
 		if fieldAnySlice, ok := s.Value.([]any); ok { // Check if the value is a slice of any type.
 			var values []string
 			for _, fieldAny := range fieldAnySlice {
-				if valueField, ok := fieldAny.(ValueField); ok { // If the value is of ValueField type.
-					values = append(values, valueField.String())
+				if valueField, ok := fieldAny.(IValueField); ok { // If the value is of ValueField type.
+					values = append(values, valueField.Value())
 				} else if valueString, ok := fieldAny.(string); ok { // If the value is of string type.
 					values = append(values, "'"+valueString+"'")
 				} else { // If the value is of numeric type.
@@ -71,8 +71,8 @@ func (s *UpdateItem) String() string {
 		return fmt.Sprintf("%s = (%v)", s.Field, valueQueryBuilder)
 	}
 
-	if valueField, ok := s.Value.(ValueField); ok { // Check if the value is a ValueField.
-		return fmt.Sprintf("%s = %s", s.Field, valueField)
+	if valueField, ok := s.Value.(IValueField); ok { // Check if the value is a ValueField.
+		return fmt.Sprintf("%s = %s", s.Field, valueField.Value())
 	}
 
 	if valueString, ok := s.Value.(string); ok { // Check if the value is a string.

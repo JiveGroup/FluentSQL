@@ -275,8 +275,8 @@ func (c *Condition) StringArgs(args []any) (string, []any) {
 	}
 
 	// Handle ValueField type, excluding it from arguments.
-	if valueField, ok := c.Value.(ValueField); ok {
-		return fmt.Sprintf("%s %s %s", c.Field, c.opt(), valueField), args
+	if valueField, ok := c.Value.(IValueField); ok {
+		return fmt.Sprintf("%s %s %s", c.Field, c.opt(), valueField.Value()), args
 	}
 
 	// Handle IS NULL and IS NOT NULL conditions.
