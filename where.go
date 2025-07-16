@@ -353,18 +353,18 @@ type ValueField string
 //		name string
 //	}
 //
-//	func (f CustomField) String() string {
+//	func (f CustomField) Value() string {
 //		return fmt.Sprintf("CUSTOM(%s)", f.name)
 //	}
 //
 //	// Can be used in SQL generation
 //	field := CustomField{name: "test"}
-//	sqlValue := field.String() // Returns "CUSTOM(test)"
+//	sqlValue := field.Value() // Returns "CUSTOM(test)"
 type IValueField interface {
-	String() string
+	Value() string
 }
 
-// String converts the ValueField to its string representation.
+// Value converts the ValueField to its string representation.
 //
 // Returns:
 //   - string: The string representation of the ValueField.
@@ -376,7 +376,7 @@ type IValueField interface {
 //	    d.employee_id = e.employee_id
 //	    instead of
 //	    d.employee_id = 'e.employee_id'
-func (v ValueField) String() string {
+func (v ValueField) Value() string {
 	return string(v)
 }
 

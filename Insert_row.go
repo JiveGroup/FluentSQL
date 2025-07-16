@@ -52,7 +52,7 @@ func (ir *InsertRow) String() string {
 	for _, col := range ir.Values {
 		// Check if the value is of type ValueField.
 		if colField, ok := col.(IValueField); ok {
-			rowStr = append(rowStr, colField.String())
+			rowStr = append(rowStr, colField.Value())
 		} else if colString, ok := col.(string); ok { // Handle string values.
 			rowStr = append(rowStr, "'"+colString+"'")
 		} else { // Handle other types (int, float, etc.).
